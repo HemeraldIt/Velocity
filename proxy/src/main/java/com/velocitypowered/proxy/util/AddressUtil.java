@@ -18,8 +18,6 @@
 package com.velocitypowered.proxy.util;
 
 import com.google.common.base.Preconditions;
-import com.google.common.net.InetAddresses;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
@@ -43,18 +41,11 @@ public final class AddressUtil {
    */
   public static InetSocketAddress parseAddress(String ip) {
     Preconditions.checkNotNull(ip, "ip");
-    URI uri = URI.create("tcp://" + ip);
-    if (uri.getHost() == null) {
+    String[] address = ip.split(":");
+    if (address.length != 2) {
       throw new IllegalStateException("Invalid hostname/IP " + ip);
     }
-
-    int port = uri.getPort() == -1 ? DEFAULT_MINECRAFT_PORT : uri.getPort();
-    try {
-      InetAddress ia = InetAddresses.forUriString(uri.getHost());
-      return new InetSocketAddress(ia, port);
-    } catch (IllegalArgumentException e) {
-      return InetSocketAddress.createUnresolved(uri.getHost(), port);
-    }
+    return new InetSocketAddress(address[0], Integer.parseInt(address[1]));
   }
 
   /**
