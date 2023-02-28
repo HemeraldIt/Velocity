@@ -19,7 +19,6 @@ package com.velocitypowered.proxy.util;
 
 import com.google.common.base.Preconditions;
 import java.net.InetSocketAddress;
-import java.net.URI;
 
 /**
  * Utilities to parse addresses.
@@ -42,10 +41,11 @@ public final class AddressUtil {
   public static InetSocketAddress parseAddress(String ip) {
     Preconditions.checkNotNull(ip, "ip");
     String[] address = ip.split(":");
-    if (address.length != 2) {
+    if (address.length > 2 || address[0].isEmpty()) {
       throw new IllegalStateException("Invalid hostname/IP " + ip);
     }
-    return new InetSocketAddress(address[0], Integer.parseInt(address[1]));
+    int port = address.length == 2 ? Integer.parseInt(address[1]) : DEFAULT_MINECRAFT_PORT;
+    return new InetSocketAddress(address[0], port);
   }
 
   /**
@@ -57,12 +57,11 @@ public final class AddressUtil {
    */
   public static InetSocketAddress parseAndResolveAddress(String ip) {
     Preconditions.checkNotNull(ip, "ip");
-    URI uri = URI.create("tcp://" + ip);
-    if (uri.getHost() == null) {
+    String[] address = ip.split(":");
+    if (address.length > 2 || address[0].isEmpty()) {
       throw new IllegalStateException("Invalid hostname/IP " + ip);
     }
-
-    int port = uri.getPort() == -1 ? DEFAULT_MINECRAFT_PORT : uri.getPort();
-    return new InetSocketAddress(uri.getHost(), port);
+    int port = address.length == 2 ? Integer.parseInt(address[1]) : DEFAULT_MINECRAFT_PORT;
+    return new InetSocketAddress(address[0], port);
   }
 }
